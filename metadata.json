@@ -1,0 +1,7 @@
+{
+  "name": " Math Assistant",
+  "description": "A chatbot designed to help middle school students with their IXL math assignments by providing step-by-step guidance and conceptual explanations aligned with Common Core standards.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
