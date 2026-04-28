@@ -18,10 +18,16 @@ const MATH_SYMBOLS = [
     { label: '×', value: '×' },
     { label: '÷', value: '÷' },
     { label: '=', value: '=' },
+    { label: '/', value: '/' },
+    { label: '½', value: '½' },
+    { label: '⅓', value: '⅓' },
+    { label: '¼', value: '¼' },
     { label: 'x²', value: '²' },
     { label: '√', value: '√' },
     { label: 'π', value: 'π' },
-    { label: 'a/b', value: '/' },
+    { label: '°', value: '°' },
+    { label: '≤', value: '≤' },
+    { label: '≥', value: '≥' },
     { label: '(', value: '(' },
     { label: ')', value: ')' },
 ];
@@ -129,14 +135,14 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, onUploa
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-2">
       {/* Math Toolbar */}
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300">
+      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 px-1">
           {MATH_SYMBOLS.map((sym) => (
               <button
                 key={sym.label}
                 type="button"
                 onClick={() => insertSymbol(sym.value)}
                 disabled={isLoading}
-                className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-sm font-medium border border-gray-200 transition-colors whitespace-nowrap"
+                className="px-3 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-md text-sm font-medium border border-gray-200 transition-colors whitespace-nowrap shadow-sm"
               >
                   {sym.label}
               </button>

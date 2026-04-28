@@ -1,4 +1,6 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface ChatBubbleProps {
   role: 'user' | 'model';
@@ -26,8 +28,8 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ role, text, image, onReview }) 
   const isUser = role === 'user';
   
   const bubbleClasses = isUser
-    ? 'bg-blue-500 text-white'
-    : 'bg-white text-gray-800 border border-gray-200';
+    ? 'bg-blue-600 text-white shadow-md'
+    : 'bg-white text-gray-800 border border-gray-200 shadow-sm';
   
   const containerClasses = isUser
     ? 'flex justify-end items-start gap-3'
@@ -36,9 +38,38 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ role, text, image, onReview }) 
   return (
     <div className={containerClasses}>
       {!isUser && <AssistantIcon />}
-      <div className={`rounded-xl p-3 max-w-md md:max-w-lg break-words ${bubbleClasses}`}>
-        {image && <img src={image} alt="User upload" className="rounded-lg mb-2 max-w-full h-auto" />}
-        {text && <div style={{ whiteSpace: 'pre-wrap' }}>{text}</div>}
+      <div className={`rounded-2xl p-4 max-w-[85%] sm:max-w-md md:max-w-lg lg:max-w-xl break-words ${bubbleClasses}`}>
+        {image && (
+          <div className="mb-3 rounded-lg overflow-hidden border border-white/20">
+            <img src={image} alt="User upload" className="rounded-lg max-w-full h-auto" />
+          </div>
+        )}
+        
+        {text && (
+          <div className={`markdown-content ${isUser ? 'prose-invert text-white' : 'prose prose-blue prose-sm max-w-none text-gray-800'}`}>
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]}
+              components={{
+                a: ({ node, ...props }: any) => (
+                  <a 
+                    {...props} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className={`${isUser ? 'text-white' : 'text-blue-600'} underline font-bold hover:opacity-80 transition-opacity cursor-pointer`}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                ),
+                p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
+                ul: ({ children }) => <ul className="list-disc ml-4 mb-2">{children}</ul>,
+                ol: ({ children }) => <ol className="list-decimal ml-4 mb-2">{children}</ol>,
+                li: ({ children }) => <li className="mb-1">{children}</li>,
+                code: ({ children }) => <code className={`${isUser ? 'bg-blue-700' : 'bg-gray-100'} rounded px-1 text-sm font-mono`}>{children}</code>
+              }}
+            >
+              {text}
+            </ReactMarkdown>
+          </div>
+        )}
         
         {/* Review Button - Only for Model messages */}
         {!isUser && onReview && (

@@ -1,0 +1,20 @@
+/* Custom Styles */
+
+body {
+  background-color: rgb(249 250 251); /* bg-gray-50 */
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.markdown-content a {
+  color: rgb(37 99 235); /* prose-blue link color */
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.markdown-content p {
+  margin-bottom: 0.75rem;
+}
+
+.markdown-content p:last-child {
+  margin-bottom: 0;
+}

@@ -1,3 +1,4 @@
+
 export interface Message {
   role: 'user' | 'model';
   text: string;
@@ -9,4 +10,12 @@ export interface Badge {
   name: string;
   description: string;
   icon: string; // Emoji
+}
+
+export interface ChatSession {
+  id: string;
+  userId?: string;
+  title: string;
+  messages: Message[];
+  updatedAt: number;
 }

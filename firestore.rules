@@ -1,0 +1,99 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Deny All
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Global Functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isVerified() {
+      return 'email_verified' in request.auth.token && request.auth.token.email_verified == true;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+    
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Validation for User
+    function isValidUser(data) {
+      return data.keys().hasAll(['userId', 'points', 'badges', 'createdAt', 'updatedAt'])
+        && data.keys().size() == 5
+        && data.userId is string && data.userId.size() <= 128 && data.userId == request.auth.uid
+        && data.points is number && data.points >= 0
+        && data.badges is list && data.badges.size() <= 100
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // Validation for ChatSession
+    function isValidSession(data) {
+      return data.keys().hasAll(['id', 'userId', 'title', 'messages', 'createdAt', 'updatedAt'])
+        && data.keys().size() == 6
+        && data.id is string && data.id.size() <= 128
+        && data.userId is string && data.userId == request.auth.uid
+        && data.title is string && data.title.size() <= 200
+        && data.messages is list && data.messages.size() <= 1000
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /users/{userId} {
+      allow get: if isSignedIn() && isVerified() && request.auth.uid == userId;
+      // list not allowed.
+      
+      allow create: if isSignedIn() && isVerified()
+        && request.auth.uid == userId
+        && isValidId(userId)
+        && isValidUser(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+        
+      allow update: if isSignedIn() && isVerified()
+        && request.auth.uid == userId
+        && isValidUser(incoming())
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['points', 'badges', 'updatedAt']);
+    }
+
+    match /users/{userId}/sessions/{sessionId} {
+      allow get: if isSignedIn() && isVerified() && request.auth.uid == userId;
+      allow list: if isSignedIn() && isVerified() && request.auth.uid == userId && resource.data.userId == request.auth.uid;
+      
+      allow create: if isSignedIn() && isVerified()
+        && request.auth.uid == userId
+        && isValidId(userId)
+        && isValidId(sessionId)
+        && isValidSession(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && exists(/databases/$(database)/documents/users/$(userId)); // Parent must exist
+
+      allow update: if isSignedIn() && isVerified()
+        && request.auth.uid == userId
+        && isValidId(sessionId)
+        && isValidSession(incoming())
+        && incoming().id == existing().id
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['title', 'messages', 'updatedAt']);
+        
+      allow delete: if isSignedIn() && isVerified() && request.auth.uid == userId;
+    }
+  }
+}
